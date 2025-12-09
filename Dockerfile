@@ -21,9 +21,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiar proyecto
 COPY . .
+COPY .env /app/.env.local
 
 # Puerto expuesto
 EXPOSE 8000
+EXPOSE 80 443
+
+
 
 # COPY docker-entrypoint.sh /docker-entrypoint.sh
 # RUN chmod +x ./docker-entrypoint.sh

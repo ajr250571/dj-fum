@@ -2,6 +2,8 @@
 services:
   db:
     image: postgres:14
+    restart: always
+    container_name: db
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -9,9 +11,10 @@ services:
       POSTGRES_HOST: ${POSTGRES_HOST}
     volumes:
       - pgdata:/var/lib/postgresql/data
-
     ports:
       - ${POSTGRES_PORT}:5432
+    networks:
+      - app_network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 30s
@@ -21,6 +24,8 @@ services:
 
   web:
     build: .
+    restart: always
+    container_name: web
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
@@ -29,6 +34,30 @@ services:
     depends_on:
       db:
         condition: service_healthy  # Espera hasta que db esté healthy
+    networks:
+      - app_network
+    environment:
+      - DATABASE_HOST=db
+
+  # Servidor Nginx
+  nginx:
+    image: nginx:alpine
+    restart: always
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"  # Opcional para HTTPS
+    volumes:
+      - ./web/static:/static  # Para servir archivos estáticos
+      - ./web/media:/media    # Para servir archivos multimedia
+    depends_on:
+      - web
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
 
 volumes:
   pgdata:

@@ -25,5 +25,13 @@ COPY . .
 # Puerto expuesto
 EXPOSE 8000
 
+# COPY docker-entrypoint.sh /docker-entrypoint.sh
+# RUN chmod +x ./docker-entrypoint.sh
+
+RUN chmod +x ./init_tenants.sh
+
 # Comando para ejecutar
 CMD ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000"]
+
+# Definir entrypoint
+# ENTRYPOINT ["/docker-entrypoint.sh"]
